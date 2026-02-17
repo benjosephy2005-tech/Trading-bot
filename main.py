@@ -10,8 +10,8 @@ from sklearn.preprocessing import StandardScaler
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, CallbackQueryHandler
 
-TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
-TWELVE_DATA_API_KEY = "YOUR_TWELVEDATA_API_KEY"
+TELEGRAM_TOKEN = "8528363878:AAF29_Ay2PX9A8yldDg8JzDA_4lG2YiAgiE"
+TWELVEDATA_KEY = "44d3f7079c8443ce84b59962617e04c9"
 
 PAIRS = {
     "XAUUSD": "XAU/USD",
