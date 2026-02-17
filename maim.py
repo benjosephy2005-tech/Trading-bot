@@ -11,7 +11,7 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 TOKEN ="8528363878:AAF29_Ay2PX9A8yldDg8JzDA_4lG2YiAgiE"
-TWELVE_DATA_API_KEY = "YOUR_TWELVEDATA_API_KEY"
+TWELVE_DATA_API_KEY ="44d3f7079c8443ce84b59962617e04c9"
 
 PAIRS = {
     "XAUUSD": "XAU/USD",
