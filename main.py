@@ -10,8 +10,8 @@ from sklearn.preprocessing import StandardScaler
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, CallbackQueryHandler
 
-TELEGRAM_TOKEN = "8528363878:AAF29_Ay2PX9A8yldDg8JzDA_4lG2YiAgiE"
-TWELVEDATA_KEY = "44d3f7079c8443ce84b59962617e04c9"
+TOKEN ="8528363878:AAF29_Ay2PX9A8yldDg8JzDA_4lG2YiAgiE"
+TWELVEDATA_KEY ="44d3f7079c8443ce84b59962617e04c9"
 
 PAIRS = {
     "XAUUSD": "XAU/USD",
@@ -208,10 +208,10 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.edit_message_text(text)
 
 def main():
-    app = ApplicationBuilder().token(TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CallbackQueryHandler(button_handler))
-    app.run_polling()
+    application = ApplicationBuilder().token(TOKEN).build()
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CallbackQueryHandler(button_handler))
+    application.run_polling()
 
 if __name__ == "__main__":
     main()
