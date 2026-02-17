@@ -10,7 +10,7 @@ from sklearn.preprocessing import StandardScaler
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
+TOKEN ="8528363878:AAF29_Ay2PX9A8yldDg8JzDA_4lG2YiAgiE"
 TWELVE_DATA_API_KEY = "YOUR_TWELVEDATA_API_KEY"
 
 PAIRS = {
