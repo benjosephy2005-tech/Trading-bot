@@ -7,11 +7,11 @@ import joblib
 import os
 from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import StandardScaler
-from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, CallbackQueryHandler
 
-TOKEN ="8528363878:AAF29_Ay2PX9A8yldDg8JzDA_4lG2YiAgiE"
-TWELVE_DATA_API_KEY ="44d3f7079c8443ce84b59962617e04c9"
+TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
+TWELVE_DATA_API_KEY = "YOUR_TWELVEDATA_API_KEY"
 
 PAIRS = {
     "XAUUSD": "XAU/USD",
@@ -166,36 +166,51 @@ def update_model(df):
     joblib.dump(model, MODEL_FILE)
     joblib.dump(scaler, SCALER_FILE)
 
-async def signals(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    message = "Forex AI Multi-Timeframe Signals\n\n"
-    for name, symbol in PAIRS.items():
-        total_buy = 0
-        total_sell = 0
-        final_data = None
-        for tf_name, tf_value in TIMEFRAMES.items():
-            df = get_data(symbol, tf_value)
-            if df.empty or len(df) < 50:
-                continue
-            result = analyze_timeframe(df)
-            total_buy += result["buy_score"]
-            total_sell += result["sell_score"]
-            final_data = result
-            update_model(df)
-        if final_data is None:
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    keyboard = []
+    row = []
+    for pair in PAIRS.keys():
+        row.append(InlineKeyboardButton(pair, callback_data=pair))
+        if len(row) == 2:
+            keyboard.append(row)
+            row = []
+    if row:
+        keyboard.append(row)
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text("Select a pair:", reply_markup=reply_markup)
+
+async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    pair_name = query.data
+    symbol = PAIRS[pair_name]
+    total_buy = 0
+    total_sell = 0
+    final_data = None
+    for tf_name, tf_value in TIMEFRAMES.items():
+        df = get_data(symbol, tf_value)
+        if df.empty or len(df) < 50:
             continue
-        direction = "BUY" if total_buy > total_sell else "SELL"
-        confidence = abs(total_buy - total_sell) / (total_buy + total_sell) * 100
-        if direction == "BUY":
-            message += f"{name}\nDirection: BUY\nConfidence: {confidence:.2f}%\nEntry: {final_data['price']:.2f}\nSL: {final_data['buy_sl']:.2f}\nTP: {final_data['buy_tp']:.2f}\n\n"
-        else:
-            message += f"{name}\nDirection: SELL\nConfidence: {confidence:.2f}%\nEntry: {final_data['price']:.2f}\nSL: {final_data['sell_sl']:.2f}\nTP: {final_data['sell_tp']:.2f}\n\n"
-    if message == "Forex AI Multi-Timeframe Signals\n\n":
-        message += "No signals now."
-    await update.message.reply_text(message)
+        result = analyze_timeframe(df)
+        total_buy += result["buy_score"]
+        total_sell += result["sell_score"]
+        final_data = result
+        update_model(df)
+    if final_data is None:
+        await query.edit_message_text("No data available.")
+        return
+    direction = "BUY" if total_buy > total_sell else "SELL"
+    confidence = abs(total_buy - total_sell) / (total_buy + total_sell) * 100
+    if direction == "BUY":
+        text = f"{pair_name}\nDirection: BUY\nConfidence: {confidence:.2f}%\nEntry: {final_data['price']:.2f}\nSL: {final_data['buy_sl']:.2f}\nTP: {final_data['buy_tp']:.2f}"
+    else:
+        text = f"{pair_name}\nDirection: SELL\nConfidence: {confidence:.2f}%\nEntry: {final_data['price']:.2f}\nSL: {final_data['sell_sl']:.2f}\nTP: {final_data['sell_tp']:.2f}"
+    await query.edit_message_text(text)
 
 def main():
     app = ApplicationBuilder().token(TOKEN).build()
-    app.add_handler(CommandHandler("signals", signals))
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CallbackQueryHandler(button_handler))
     app.run_polling()
 
 if __name__ == "__main__":
